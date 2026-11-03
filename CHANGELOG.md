@@ -4,7 +4,7 @@ Todas as mudanças relevantes deste pacote, no formato [Keep a Changelog](https:
 com versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 
-## [Não lançado]
+## [0.6.0] — 2026-11-03
 ### Corrigido
 - P0: `assets/CLAUDE.md` mandava hreflang recíproco entre domínios de conteúdo distinto; agora hreflang só em tradução 1:1 do mesmo conteúdo, conteúdo distinto liga por link; removido "irreversível". SKILL.md e `/seo-load` alinhados.
 - `check-seo.sh`: regra `hreflang-conteudo-distinto` (host diferente exige `seo-variant` igual), `host-ambiguo` (sem inferir host pela maioria; `--host a,b`), `waiver-sem-motivo` + aviso dos waivers, `rel=canonical` sem aspas, `sitemap-sem-loc`. Testes 15 → 24.
