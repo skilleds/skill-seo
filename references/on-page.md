@@ -19,7 +19,7 @@ O title é o sinal on-page mais forte e o principal gatilho de clique na SERP e 
 **MUST**
 - **Um title único por página** em todo o site. Title duplicado é canibalização anunciada.
 - **Keyword primária no começo**, o mais à esquerda que a leitura natural permitir. O peso e a truncagem penalizam o que fica no fim.
-- **Marca no fim**, separada por `–` ou `|` (ex.: `… | Schematize`). Homepage pode abrir pela marca.
+- **Marca no fim**, separada por `|` ou `:` (o checador de seo-writing reprova travessão) (ex.: `… | Schematize`). Homepage pode abrir pela marca.
 - Descrever **a intenção real da página**. Title que promete o que o corpo não entrega gera *pogo-stick* (usuário volta pra SERP) e derruba o rank.
 - Escrito no idioma do conteúdo (`.com.br` em pt-BR; `.me`/`.net`/`.org` conforme o locale da página — ver `internacional-multidominio.md`).
 
