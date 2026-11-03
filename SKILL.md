@@ -89,7 +89,7 @@ Independente do reference, estes limites nunca são cruzados:
 2. **Uma intenção por URL.** Toda página indexável responde a **uma** intenção de busca dominante. Duas páginas disputando a mesma intenção/keyword = **canibalização**: consolida, diferencia ou 301. Ver `keywords-conteudo.md` e `anti-padroes.md`.
 3. **Self-canonical por padrão.** Toda página indexável aponta `rel=canonical` pra si mesma (URL absoluta, uma versão: https, com/sem www decidido, sem parâmetros de tracking na canônica).
 4. **Nunca canonical cruzado entre os domínios distintos da casa.** `.net`, `.org`, `.me` e `.com.br` são propriedades com **conteúdo e intenção distintos** — cada uma é self-canonical. Canonicalizar `.me`→`.net` jogaria fora a autoridade do `.me`. Elas se diferenciam por conteúdo e se conectam por links (os "que importam" apontam pro `.net`), **não** por canonical. Ver `internacional-multidominio.md`.
-5. **hreflang recíproco e completo** quando houver variação por idioma/região: todo conjunto inclui `x-default`, cada URL lista todas as alternativas (inclusive a si), e os apontamentos são recíprocos. hreflang quebrado é ignorado pelo Google.
+5. **hreflang só para tradução 1:1 do MESMO conteúdo** (idioma/região), nunca entre conteúdos distintos dos domínios da casa (esses ligam por link):  todo conjunto inclui `x-default`, cada URL lista todas as alternativas (inclusive a si), e os apontamentos são recíprocos. hreflang quebrado é ignorado pelo Google.
 6. **Indexabilidade intencional.** O que deve rankear é rastreável e indexável (não bloqueado por robots, sem `noindex` acidental, sem depender de JS que o crawler não executa); o que não deve (staging, filtros infinitos, carrinho) é `noindex`/bloqueado de propósito.
 7. **Title, meta e H1 únicos e verdadeiros por página.** Nada de title duplicado no site, nada de meta genérica, nada de H1 que promete o que a página não entrega (o *pogo-stick* do usuário derruba o rank).
 8. **Dados estruturados válidos e verdadeiros.** JSON-LD que reflete o conteúdo visível na página; passa no validador; sem marcar rich result que a página não mostra (é violação e vira penalização manual).
@@ -99,7 +99,7 @@ Independente do reference, estes limites nunca são cruzados:
 
 ## Gate executável (máquina)
 
-`bash scripts/check-seo.sh <dir-do-build>` roda sobre o HTML publicado e reprova (exit 1): canonical ausente/relativa/com parâmetro/**cruzando domínio**, hreflang sem `x-default`/self/recíproco, `title`/`description` ausentes ou **duplicados**, `h1` ausente, `robots.txt` que bloqueia tudo ou sem `Sitemap:`, sitemap ausente. Exit 2 = sem HTML (nada verificado, não é aprovação). `scripts/check-seo.test.sh` é o vermelho do próprio gate. O que a máquina não lê (intenção, canibalização, veracidade do título) segue no `/seo-review`.
+`bash scripts/check-seo.sh <dir-do-build>` roda sobre o HTML publicado e reprova (exit 1): canonical ausente/relativa/com parâmetro/**cruzando domínio**, hreflang sem `x-default`/self/recíproco **ou entre conteúdos distintos** (`hreflang-conteudo-distinto`; tradução entre hosts exige `<!-- seo-variant: slug -->` igual nas duas), `--host` obrigatório com canonicals em >1 host, `seo-ok:` sem motivo, sitemap sem `<loc>`, `title`/`description` ausentes ou **duplicados**, `h1` ausente, `robots.txt` que bloqueia tudo ou sem `Sitemap:`, sitemap ausente. Rode no `tools/ci.sh` local e na promoção a hml (piso 27, sem CI por commit/PR). Exit 2 = sem HTML (nada verificado, não é aprovação). `scripts/check-seo.test.sh` é o vermelho do próprio gate. O que a máquina não lê (intenção, canibalização, veracidade do título) segue no `/seo-review`.
 
 ## Relação com as outras skills
 
@@ -117,3 +117,6 @@ Independente do reference, estes limites nunca são cruzados:
   **mentir para o crawler**, o que é pior que não ter. *(A `schematize-institutional` entregava um
   `sitemap.xml` à mão, que esta skill e a `schematize-web` vetam — achado da Classe F da vistoria
   de 2026-08-21.)*
+
+
+**Herda os pisos 22–29** da `schematize-engineering` (git como trava de conclusão, deploy só do git, ops é o gate da IA, sem agents inúteis, relatório 30 min/handoff 6 h, CI remoto só antes do hml, microserviço autônomo, build em dev/hml + higiene).

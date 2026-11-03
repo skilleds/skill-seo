@@ -122,7 +122,7 @@ A SERP não é uma lista simples. Vários blocos disputam a atenção — e a po
 | Feature | O que é | Como se ganha |
 |---|---|---|
 | **Featured snippet** | Caixa no topo com a resposta extraída de uma página | Responder a pergunta direta e concisa (parágrafo, lista ou tabela) já rankeando bem |
-| **People Also Ask (PAA)** | Perguntas relacionadas expansíveis | Cobrir subperguntas do tópico com respostas curtas e diretas (formato Q&A / `FAQPage`) |
+| **People Also Ask (PAA)** | Perguntas relacionadas expansíveis | Cobrir subperguntas do tópico com respostas curtas e diretas (formato Q&A no texto, sem marcação `FAQPage`) |
 | **Sitelinks** | Links internos extras sob um resultado | Arquitetura de site clara, navegação e nomes de página inequívocos |
 | **Knowledge panel** | Painel lateral sobre entidade (marca/pessoa) | Entidade bem definida (`Organization`/`Person` JSON-LD), consistência de dados, autoridade |
 | **Rich results** | Resultado enriquecido (estrelas, preço, FAQ, breadcrumb) | Dados estruturados válidos que refletem o conteúdo real (**`dados-estruturados.md`** — o `tecnico.md` não trata de schema) |

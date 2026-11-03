@@ -17,11 +17,14 @@ Faça uma **auditoria de SEO** de $ARGUMENTS (ou do site/projeto atual), plan-fi
    curl -sSI "$URL" | grep -iE 'x-robots-tag|content-type|cache-control|link:'
 
    # b) o HTML SERVIDO (o que o crawler que não executa JS enxerga)
-   curl -sSL "$URL" -o /tmp/pagina.html
-   grep -oiE '<title>[^<]*</title>|<link[^>]+rel="canonical"[^>]*>|<meta[^>]+name="(robots|description)"[^>]*>|<link[^>]+hreflang="[^"]*"[^>]*>|<h1[^>]*>.*</h1>' /tmp/pagina.html
+   mkdir -p .schematize/tmp && curl -sSL "$URL" -o .schematize.schematize/tmp/pagina.html
+   grep -oiE '<title>[^<]*</title>|<link[^>]+rel="canonical"[^>]*>|<meta[^>]+name="(robots|description)"[^>]*>|<link[^>]+hreflang="[^"]*"[^>]*>|<h1[^>]*>.*</h1>' .schematize/tmp/pagina.html
+
+   # b2) gate de máquina sobre o HTML coletado (mesmo script do piso; não use regex própria)
+   bash scripts/check-seo.sh --host "$HOST_DO_SITE" .schematize/tmp/   # multi-domínio: --host a,b
 
    # c) dados estruturados que realmente saíram no HTML
-   grep -oE '<script[^>]+application/ld\+json[^>]*>[^<]*' /tmp/pagina.html
+   grep -oE '<script[^>]+application/ld\+json[^>]*>[^<]*' .schematize/tmp/pagina.html
 
    # d) robots.txt e sitemap — existem? o sitemap lista esta URL?
    curl -sS "$ORIGEM/robots.txt"

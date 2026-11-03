@@ -21,14 +21,15 @@ Carregue **à força** e passe a aplicar **integralmente** os Padrões de SEO da
      política de crawler, medição de citação.
    - `medicao.md` — GSC, analytics, rank, logs, KPIs, experimento com baseline.
    - `anti-padroes.md` — o que **queima o domínio**, com o caminho certo de cada um.
-   - `checklist-lp.md` — o checklist por landing page, pré-publicação.
+   - `autoridade-eeat.md` — E-E-A-T, autoridade e entidade por domínio.
+  - `checklist-lp.md` — o checklist por landing page, pré-publicação.
    - `stack-versoes.md` — **anexo volátil**: o que o Google mudou e quando foi conferido.
 
 2. **Confirme em uma linha** o que carregou (arquivos + data do anexo volátil).
 
 3. **Passe a aplicar** os pisos como **inegociáveis** no resto da sessão: nunca black-hat; toda
    página indexável **self-canonical** com **uma** intenção; **nunca** canonical cruzado entre os
-   domínios da casa; `hreflang` recíproco com `x-default`; nenhum tipo de rich result **morto**
+   domínios da casa; `hreflang` SÓ em tradução 1:1 do mesmo conteúdo (recíproco, com `x-default`), nunca entre conteúdos distintos; nenhum tipo de rich result **morto**
    marcado; e **medir antes/depois** — mudança sem baseline é opinião, não otimização.
 
 4. **Fronteiras** (não invada): a **implementação** no frontend é da `schematize-web`; **quais

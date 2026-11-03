@@ -22,10 +22,10 @@ no deploy, aparece três meses depois, num gráfico que ninguém sabe explicar.
    mesma**, na URL limpa. Duas páginas disputando a mesma intenção é **canibalização**: as duas
    perdem.
 3. **NUNCA canonical cruzando os domínios da casa.** Apontar o canônico de um domínio para outro
-   **entrega o ranking do primeiro ao segundo**, e é irreversível na prática. A estratégia
-   multi-domínio é **conteúdo distinto por domínio**, com `hreflang` recíproco — nunca canônico
-   cruzado.
-4. **`hreflang` recíproco, com `x-default`.** A aponta B **e** B aponta A. Unilateral é ignorado.
+   **entrega o ranking do primeiro ao segundo** (canonical é dica, mas dica forte). A estratégia
+   multi-domínio é **conteúdo distinto por domínio, ligado por links** — nunca canônico cruzado e
+   **nunca `hreflang` entre conteúdos distintos**.
+4. **`hreflang` só para tradução 1:1 do MESMO conteúdo**, recíproco e com `x-default`. A aponta B **e** B aponta A; unilateral é ignorado. Conteúdo distinto (`.net`/`.org`/`.me`/`.com.br`) = link, sem hreflang. O gate reprova (`hreflang-conteudo-distinto`).
 5. **Nada de fato datado no corpo normativo do site sem data.** Estado de produto do Google muda
    (rich result some, relatório é desativado): o que tem prazo vive no anexo, com data de
    verificação.
@@ -60,3 +60,6 @@ Nada é "publicado" sem: **uma intenção** declarada e sem canibalização com 
 multilíngue; dados estruturados **válidos** e sem tipo morto; conteúdo **citável** (resposta direta
 perto do topo, no HTML servido); CWV no verde na página que importa; e **baseline registrado** para
 comparar depois.
+
+
+**Herda os pisos 22–29** da `schematize-engineering` (git como trava de conclusão, deploy só do git, ops é o gate da IA, sem agents inúteis, relatório 30 min/handoff 6 h, CI remoto só antes do hml, microserviço autônomo, build em dev/hml + higiene).

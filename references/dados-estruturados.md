@@ -51,7 +51,7 @@ Marcar o conteúdo com schema.org via JSON-LD entrega **duas coisas de uma vez**
 | Tipo | Onde usar | Domínio típico |
 |---|---|---|
 | `Organization` | página institucional, sobre, rodapé de **todo** domínio | presença em todos, com **`@id` único** apontando o domínio-âncora — a definição é do `internacional-multidominio.md` §"Entidade de marca", que é o reference central da estratégia de domínios |
-| `WebSite` | home de cada propriedade (com `SearchAction` se houver busca) | todos |
+| `WebSite` | home de cada propriedade (sem `SearchAction`: o searchbox morreu) | todos |
 | `SoftwareApplication` | página do produto **schematize** (CLI) | `.net` comercial |
 | `Product` + `Offer` | oferta paga/plano, quando existir | `.net` |
 | `Course` | cursos futuros, linkados na plataforma **educe** | `.net` / `educe` |
@@ -69,8 +69,8 @@ Identidade da casa. Uma organização, referenciada por `@id` em todo o resto (a
   "@type": "Organization",
   "@id": "https://schematize.net/#org",
   "name": "Schematize",
-  "url": "https://schematize.org",
-  "logo": "https://schematize.org/logo.png",
+  "url": "https://schematize.net",
+  "logo": "https://schematize.net/logo.png",
   "sameAs": [
     "https://github.com/schematizeme",
     "https://www.linkedin.com/company/schematize",
@@ -81,9 +81,9 @@ Identidade da casa. Uma organização, referenciada por `@id` em todo o resto (a
 
 **MUST** — `logo` é URL absoluta de imagem real; `sameAs` só lista perfis que a casa controla. Um `@id` só para a organização, reusado cross-domain.
 
-### WebSite (+ SearchAction)
+### WebSite
 
-Um por propriedade. *(O `SearchAction`/`potentialAction` para o **sitelinks searchbox** era prescrito aqui; o rich result está morto — ver o bloco "Rich results MORTOS". Declará-lo hoje não gera a caixa de busca no resultado.)* Com busca interna, o `SearchAction` searchbox**.
+Um por propriedade. *(O `SearchAction`/`potentialAction` para o **sitelinks searchbox** era prescrito aqui; o rich result está morto — ver o bloco "Rich results MORTOS". Declará-lo hoje não gera a caixa de busca no resultado.)*
 
 ```json
 {
@@ -93,16 +93,10 @@ Um por propriedade. *(O `SearchAction`/`potentialAction` para o **sitelinks sear
   "url": "https://schematize.net",
   "name": "Schematize",
   "inLanguage": "en",
-  "publisher": { "@id": "https://schematize.net/#org" },
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": "https://schematize.net/busca?q={query}",
-    "query-input": "required name=query"
-  }
+  "publisher": { "@id": "https://schematize.net/#org" }
 }
 ```
 
-**SHOULD** — só declare `SearchAction` se a URL de busca existe e funciona; searchbox que leva a 404 é pior que nenhum.
 
 ### SoftwareApplication (schematize)
 
@@ -290,11 +284,10 @@ Sem erro no validador **e** o rich result renderiza no preview → passou. Aviso
 
 ## Checklist (pré-publicação, por página)
 
-- [ ] O tipo schema.org **certo** para a página está marcado (Organization/WebSite/SoftwareApplication/Product/Course/Article/BreadcrumbList/FAQPage/Person).
+- [ ] O tipo schema.org **certo** para a página está marcado (Organization/WebSite/SoftwareApplication/Product/Course/Article/BreadcrumbList/Person).
 - [ ] JSON-LD em `<script type="application/ld+json">`, um bloco por tipo (ou `@graph`).
 - [ ] Todo campo do markup **existe visível** na página (preço, FAQ, avaliação, breadcrumb).
 - [ ] `Organization` com `logo`, `url` e `sameAs` só de perfis controlados; reusada por `@id`.
-- [ ] `WebSite` com `SearchAction` **apenas** se a busca interna existe e funciona.
 - [ ] `SoftwareApplication` com **`operatingSystem` espelhando a matriz de release** (não uma constante herdada), `applicationCategory` e `offers` `price` `"0"`; **sem** `aggregateRating` inventado.
 - [ ] `Article`/`BlogPosting` com `author` (Person real), `datePublished` e `publisher` = `Organization`.
 - [ ] **Nenhum** `FAQPage`/`HowTo`/`SearchAction` marcado — os três saíram da galeria de rich results (✔ 2026-08-21). O conteúdo (Q&A, passo a passo, busca interna) fica; a marcação sai.

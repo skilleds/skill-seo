@@ -80,7 +80,7 @@ Esta é a confusão que mais quebra SEO técnico. Os dois **não** são intercam
 
 ---
 
-## 2.1 Controlar o SNIPPET — o que aparece na SERP e o que a IA pode citar
+## 2.3 Controlar o SNIPPET — o que aparece na SERP e o que a IA pode citar
 
 Indexar e **exibir** são coisas diferentes, e a maioria dos times só conhece a primeira. Estes são
 **os únicos controles que afetam diretamente o que os buscadores e os answer engines mostram** do

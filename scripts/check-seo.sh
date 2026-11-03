@@ -6,11 +6,12 @@
 # par é ignorado pelo Google; title/description duplicados canibalizam; robots que bloqueia tudo
 # derruba o site inteiro. Tudo isso é decidível sobre o HTML servido, sem rede.
 # Entrada: $1 = diretório com o HTML (ex.: out/, dist/, .next/server/app). Opções:
-#   --host <dominio>   host canônico esperado do site (default: o host de canonical mais comum).
+#   --host <dom[,dom2]> host(s) canônico esperado do site (obrigatório se os canonicals estão em >1 host).
 # Regras (id): canonical-ausente · canonical-relativa · canonical-parametro · canonical-cruzado ·
 #   hreflang-sem-xdefault · hreflang-sem-self · hreflang-sem-reciproco · title-ausente · title-duplicado ·
 #   description-ausente · description-duplicada · h1-ausente · robots-ausente · robots-bloqueia-tudo ·
-#   robots-sem-sitemap · sitemap-ausente.
+#   robots-sem-sitemap · sitemap-ausente · sitemap-sem-loc · host-ambiguo · waiver-sem-motivo · hreflang-conteudo-distinto.
+#   hreflang entre hosts diferentes só com `<!-- seo-variant: slug -->` igual nas duas páginas (tradução 1:1).
 # Páginas com <meta name="robots" content="...noindex..."> ficam fora das regras de página (noindex é
 # intencional). Waiver rastreável: `<!-- seo-ok: <motivo> -->` no arquivo dispensa as regras daquela página.
 # Saída: achados em stdout (`ERRO regra arquivo mensagem`). Exit 0 passa · 1 reprova · 2 nada a verificar
@@ -24,7 +25,7 @@ DIR="."; HOST=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --host) HOST="${2:-}"; shift 2 ;;
-    -h|--help) sed -n '2,21p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,23p' "$0"; exit 0 ;;
     *) DIR="$1"; shift ;;
   esac
 done
@@ -41,19 +42,22 @@ mapfile -t HTMLS < <(find "$DIR" -type f -name '*.html' \
 
 # --- extração -----------------------------------------------------------------------------------
 um() { tr '\n\r\t' '   ' < "$1"; }                      # arquivo em uma linha
-attr() { sed -nE "s/.*[[:space:]]$2=[\"']([^\"']*)[\"'].*/\1/Ip" <<<"$1" | head -1; }
+attr() { sed -nE "s/.*[[:space:]]$2=[\"']([^\"']*)[\"'].*/\1/Ip; t; s/.*[[:space:]]$2=([^[:space:]>\"']+).*/\1/Ip" <<<"$1" | head -1; }
 tags() { grep -oiE "<$2[^>]*>" <<<"$1"; }               # $1 = html numa linha, $2 = nome da tag
 
 : > "$TMP/paginas.tsv"; : > "$TMP/alt.tsv"
 for f in "${HTMLS[@]}"; do
   rel="${f#"$DIR"/}"
   h="$(um "$f")"
-  grep -qiE 'seo-ok:' <<<"$h" && continue
+  if grep -qiE '<!--[[:space:]]*seo-ok:[[:space:]]*[^[:space:]-][^>]*-->' <<<"$h"; then
+    echo "AVISO waiver $rel $(grep -oiE '<!--[[:space:]]*seo-ok:[^>]*-->' <<<"$h" | head -1)"; continue
+  fi
+  grep -qiE 'seo-ok:' <<<"$h" && erro waiver-sem-motivo "$rel" "seo-ok: exige motivo dentro de comentário HTML (<!-- seo-ok: motivo -->)"
   robots="$(tags "$h" meta | grep -iE 'name=["'\'']robots["'\'']' | head -1)"
   grep -qiE 'noindex' <<<"$robots" && continue            # noindex intencional: fora das regras de página
 
   # canonical (a tag cuja rel=canonical, em qualquer ordem de atributos)
-  canon_tag="$(tags "$h" link | grep -iE 'rel=["'\'']canonical["'\'']' | head -1)"
+  canon_tag="$(tags "$h" link | grep -iE 'rel=["'\'']?canonical["'\'']?([[:space:]>]|$)' | head -1)"
   canon="$(attr "$canon_tag" href)"
   if [ -z "$canon" ]; then erro canonical-ausente "$rel" "página indexável sem rel=canonical (self-canonical é piso)"
   else
@@ -83,6 +87,8 @@ done
 # --- canonical cruzado: todo canonical no host do site -------------------------------------------
 host_de() { sed -E 's#^[a-zA-Z]+://([^/:?#]+).*#\1#' <<<"$1" | tr '[:upper:]' '[:lower:]'; }
 if [ -z "$HOST" ]; then
+  NH="$(awk -F'\t' '$2 ~ /^https?:\/\// {print $2}' "$TMP/paginas.tsv" | sed -E 's#^[a-zA-Z]+://([^/:?#]+).*#\1#; s#^www\.##' | tr '[:upper:]' '[:lower:]' | sort -u | wc -l)"
+  [ "$NH" -le 1 ] || erro host-ambiguo "-" "canonicals em $NH hosts e sem --host: não inferimos o host pela maioria (um build inteiro com canonical errado passaria). Passe --host <dominio>"
   HOST="$(awk -F'\t' '$2 ~ /^https?:\/\// {print $2}' "$TMP/paginas.tsv" | sed -E 's#^[a-zA-Z]+://([^/:?#]+).*#\1#' \
     | tr '[:upper:]' '[:lower:]' | sort | uniq -c | sort -rn | awk 'NR==1{print $2}')"
 fi
@@ -91,8 +97,11 @@ if [ -n "$HOST" ]; then
   while IFS=$'\t' read -r rel canon _ _; do
     case "$canon" in http://*|https://*) ;; *) continue ;; esac
     ch="$(host_de "$canon")"
-    [ "$ch" = "$HOST" ] || [ "$ch" = "www.$HOST" ] || [ "www.$ch" = "$HOST" ] \
-      || erro canonical-cruzado "$rel" "canonical em '$ch', fora do host do site '$HOST' (canonical cruzando domínios da casa joga fora autoridade)"
+    ok=0; for hh in ${HOST//,/ }; do
+      [ "$ch" = "$hh" ] || [ "$ch" = "www.$hh" ] || [ "www.$ch" = "$hh" ] && ok=1
+    done
+    [ "$ok" = 1 ] \
+      || erro canonical-cruzado "$rel" "canonical em '$ch', fora do(s) host(s) do site '$HOST' (canonical cruzando domínios da casa joga fora autoridade)"
   done < "$TMP/paginas.tsv"
 fi
 
@@ -125,6 +134,26 @@ if [ -s "$TMP/alt.tsv" ]; then
   done < <(cut -f1 "$TMP/alt.tsv" | LC_ALL=C sort -u)
 fi
 
+# --- hreflang entre CONTEÚDOS DISTINTOS (domínios da casa) ---------------------------------------
+# hreflang serve a tradução 1:1 do MESMO conteúdo. Alternate em host diferente do canonical só passa se
+# AMBAS as páginas declaram o mesmo `<!-- seo-variant: slug -->` (= mesmo conteúdo, traduzido). Sem
+# marcador, ou com slugs diferentes, é hreflang entre conteúdos distintos: reprova.
+variante() { grep -oiE 'seo-variant:[[:space:]]*[A-Za-z0-9_./-]+' "$TMP/v_$(tr '/' '_' <<<"$1").txt" 2>/dev/null | head -1 | sed -E 's/.*:[[:space:]]*//'; }
+for f in "${HTMLS[@]}"; do rel="${f#"$DIR"/}"; um "$f" > "$TMP/v_$(tr '/' '_' <<<"$rel").txt"; done
+if [ -s "$TMP/alt.tsv" ]; then
+  while IFS=$'\t' read -r rel canon hl href; do
+    case "$canon" in http*) ;; *) continue ;; esac
+    case "$href" in http*) ;; *) continue ;; esac
+    [ "$(host_de "$href" | sed 's/^www\.//')" != "$(host_de "$canon" | sed 's/^www\.//')" ] || continue
+    va="$(variante "$rel")"
+    alvo="$(awk -F'\t' -v u="$href" '$2==u{print $1; exit}' "$TMP/paginas.tsv")"
+    vb=""; [ -n "$alvo" ] && vb="$(variante "$alvo")"
+    if [ -z "$va" ]; then erro hreflang-conteudo-distinto "$rel" "hreflang para outro domínio ($href) sem 'seo-variant: <slug>': hreflang só liga tradução 1:1 do MESMO conteúdo; conteúdo distinto liga por link, sem hreflang"
+    elif [ -n "$alvo" ] && [ "$va" != "$vb" ]; then erro hreflang-conteudo-distinto "$rel" "hreflang para $href ($alvo), mas variante '$va' != '${vb:-ausente}': conteúdo distinto não leva hreflang"
+    fi
+  done < "$TMP/alt.tsv"
+fi
+
 # --- robots.txt e sitemap.xml --------------------------------------------------------------------
 if [ -f "$DIR/robots.txt" ]; then
   # `User-agent: *` seguido de `Disallow: /` (sozinho) bloqueia o site inteiro
@@ -137,6 +166,10 @@ else
 fi
 if [ ! -f "$DIR/sitemap.xml" ] && ! ls "$DIR"/sitemap*.xml >/dev/null 2>&1; then
   erro sitemap-ausente sitemap.xml "sem sitemap.xml (autogerado, nunca à mão) na raiz do build"
+else
+  for sm in "$DIR"/sitemap*.xml; do
+    grep -qiE '<loc>[[:space:]]*https?://[^<]+</loc>' "$sm" || erro sitemap-sem-loc "${sm#"$DIR"/}" "sitemap sem nenhum <loc> com URL absoluta (existir não basta)"
+  done
 fi
 
 if [ "$ERROS" -gt 0 ]; then echo "check-seo: REPROVADO — $ERROS achado(s) em ${#HTMLS[@]} página(s)"; exit 1; fi
