@@ -1,0 +1,12 @@
+slug = "seo"
+name = "schematize-seo"
+tag = "SEO · técnico/conteúdo/multi-domínio/AIO"
+status = "beta"
+order = 7
+current_version = "0.6.0"
+href = "/seo"
+
+[descriptions]
+pt = "Padrões normativos de SEO da casa: técnico, on-page, conteúdo/keywords, dados estruturados, internacional/multi-domínio (sem canibalizar), AIO/LLMO/GEO, autoridade/E-E-A-T e medição."
+en = "Normative SEO standards: technical, on-page, content/keywords, structured data, international/multi-domain (no cannibalization), AIO/LLMO/GEO, authority/E-E-A-T and measurement."
+es = "Estándares normativos de SEO: técnico, on-page, contenido/keywords, datos estructurados, internacional/multidominio (sin canibalizar), AIO/LLMO/GEO, autoridad/E-E-A-T y medición."

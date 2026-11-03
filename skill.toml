@@ -3,7 +3,7 @@ name = "schematize-seo"
 tag = "SEO · técnico/conteúdo/multi-domínio/AIO"
 status = "beta"
 order = 7
-current_version = "0.5.0"
+current_version = "0.6.0"
 href = "/seo"
 
 [descriptions]
